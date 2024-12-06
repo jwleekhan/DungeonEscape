@@ -30,17 +30,33 @@ public class Player : MonoBehaviour
             }
             else if (nearbyGate)
             {
-                if (hasKey[nearbyGate.fieldType])
+                if (nearbyGate.fieldType == 4) // Central Gate
                 {
-                    Debug.Log("Open the Gate");
-                    remainingGate--;
-                    nearbyGate.pairGate.SetActive(false);
-                    nearbyGate.gameObject.SetActive(false);
-                    nearbyGate = null;
+                    if (remainingGate <= 0)
+                    {
+                        Debug.Log("Open the Gate");
+                        nearbyGate.gameObject.SetActive(false);
+                        nearbyGate = null;
+                    }
+                    else
+                    {
+                        Debug.Log("Gate is Locked");
+                    }
                 }
                 else
                 {
-                    Debug.Log("Gate is Locked");
+                    if (hasKey[nearbyGate.fieldType])
+                    {
+                        Debug.Log("Open the Gate");
+                        remainingGate--;
+                        nearbyGate.pairGate.SetActive(false);
+                        nearbyGate.gameObject.SetActive(false);
+                        nearbyGate = null;
+                    }
+                    else
+                    {
+                        Debug.Log("Gate is Locked");
+                    }
                 }
             }
         }
