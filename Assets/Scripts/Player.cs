@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    [SerializeField] GameManager gameManager;
     [SerializeField] Key nearbyKey = null;
     [SerializeField] Gate nearbyGate = null;
 
@@ -14,48 +15,50 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        
+        transform.position = new Vector3(-45.5f, 0, -145.5f);
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            if (nearbyKey)
+            if (gameManager.PanelActive())
             {
-                Debug.Log("Get Key");
-                hasKey[nearbyKey.fieldType] = true;
-                nearbyKey.gameObject.SetActive(false);
-                nearbyKey = null;
+                gameManager.ClosePanel();
             }
-            else if (nearbyGate)
+            else
             {
-                if (nearbyGate.fieldType == 4) // Central Gate
+                if (nearbyGate)
                 {
-                    if (remainingGate <= 0)
+                    if (nearbyGate.fieldType == 4) // Central Gate
                     {
-                        Debug.Log("Open the Gate");
-                        nearbyGate.gameObject.SetActive(false);
-                        nearbyGate = null;
+                        if (remainingGate <= 0)
+                        {
+                            nearbyGate.gameObject.SetActive(false);
+                            nearbyGate = null;
+                        }
+                        else
+                        {
+                            gameManager.DisplayTextPanel("열리지 않는다.");
+                        }
                     }
                     else
                     {
-                        Debug.Log("Gate is Locked");
-                    }
-                }
-                else
-                {
-                    if (hasKey[nearbyGate.fieldType])
-                    {
-                        Debug.Log("Open the Gate");
-                        remainingGate--;
-                        nearbyGate.pairGate.SetActive(false);
-                        nearbyGate.gameObject.SetActive(false);
-                        nearbyGate = null;
-                    }
-                    else
-                    {
-                        Debug.Log("Gate is Locked");
+                        if (hasKey[nearbyGate.fieldType])
+                        {
+                            remainingGate--;
+                            nearbyGate.GateOpen();
+                            nearbyGate = null;
+
+                            if (remainingGate <= 0)
+                            {
+                                gameManager.AllGateOpened();
+                            }
+                        }
+                        else
+                        {
+                            gameManager.DisplayTextPanel("열리지 않는다.");
+                        }
                     }
                 }
             }
@@ -67,6 +70,10 @@ public class Player : MonoBehaviour
         if (other.tag == "Key")
         {
             nearbyKey = other.GetComponent<Key>();
+            gameManager.DisplayTextPanel("열쇠를 획득했다.");
+            hasKey[nearbyKey.fieldType] = true;
+            nearbyKey.gameObject.SetActive(false);
+            nearbyKey = null;
         }
         else if (other.tag == "Gate")
         {
@@ -76,16 +83,13 @@ public class Player : MonoBehaviour
         {
             other.gameObject.SetActive(false);
             endingObject.gameObject.SetActive(true);
+            gameManager.DisplayClear();
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.tag == "Key")
-        {
-            nearbyKey = null;
-        }
-        else if (other.tag == "Gate")
+        if (other.tag == "Gate")
         {
             nearbyGate = null;
         }
