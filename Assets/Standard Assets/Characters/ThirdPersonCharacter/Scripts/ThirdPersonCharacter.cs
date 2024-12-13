@@ -28,6 +28,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		Vector3 m_CapsuleCenter;
 		CapsuleCollider m_Capsule;
 		bool m_Crouching;
+		AudioSource m_AudioSource;
 
 
 		void Start()
@@ -40,6 +41,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 			m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
 			m_OrigGroundCheckDistance = m_GroundCheckDistance;
+
+			m_AudioSource = GetComponent<AudioSource>();
 		}
 
 
@@ -73,6 +76,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 			// send input and other state parameters to the animator
 			UpdateAnimator(move);
+
+			PlayMoveSound(move);
 		}
 
 
@@ -221,5 +226,18 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				m_Animator.applyRootMotion = false;
 			}
 		}
+
+		void PlayMoveSound(Vector3 move)
+        {
+			if (m_IsGrounded && move != Vector3.zero)
+            {
+				if (!m_AudioSource.isPlaying)
+					m_AudioSource.Play();
+			}
+			else
+            {
+				m_AudioSource.Stop();
+            }
+        }
 	}
 }
